@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d10">
+  <meta name="description" content="LOCK/ON 锁定练枪场：定位、反应、跟枪、狙击、压枪与飞碟六项浏览器射击训练。">
+  <title>LOCK/ON — 锁定练枪场</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script>
+    try {
+      const saved = JSON.parse(localStorage.getItem('lock-on-aim:v1') || '{}');
+      document.documentElement.dataset.theme = saved.theme === 'light' ? 'light' : 'dark';
+    } catch {
+      document.documentElement.dataset.theme = 'dark';
+    }
+  </script>
+</head>
+<body>
+  <div class="ambient-grid" aria-hidden="true"></div>
+  <header class="site-header">
+    <button class="brand" id="brand-button" type="button" aria-label="返回训练大厅">
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="11"></circle>
+        <path d="M20 2v10M20 28v10M2 20h10M28 20h10"></path>
+        <circle class="brand-dot" cx="20" cy="20" r="2.5"></circle>
+      </svg>
+      <span class="brand-type"><strong>LOCK<span>/</span>ON</strong><small>AIM TRAINING FACILITY</small></span>
+    </button>
+    <div class="header-actions">
+      <span class="local-status"><i></i> 本地训练系统</span>
+      <button class="icon-button" id="theme-button" type="button" aria-pressed="false" aria-label="切换白天与夜间模式">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path></svg>
+        <span id="theme-label">白天模式</span>
+      </button>
+      <button class="icon-button" id="records-button" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V9M12 19V5M19 19v-8M3 21h18"></path></svg>
+        <span>训练成绩</span>
+      </button>
+      <button class="icon-button" type="button" data-action="toggle-sound" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9v6h4l5 4V5L9 9H5zM17 9c1.3 1.6 1.3 4.4 0 6M19.5 6.5c3 3 3 8 0 11"></path></svg>
+        <span class="sound-label">声音开启</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="view lobby-view" id="lobby-view" aria-labelledby="hero-title">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow"><span>01</span> PRECISION IS A SKILL</p>
+          <h1 id="hero-title">锁定目标。<br><em>刷新极限。</em></h1>
+          <p class="hero-description">从第一次点击，到每一次稳定命中。六种针对性项目，把反应、控制与肌肉记忆练成你的本能。</p>
+          <div class="hero-proof"><span>无需登录</span><span>即时反馈</span><span>本机记录</span></div>
+        </div>
+        <div class="hero-display" aria-hidden="true">
+          <div class="scope-visual"><i></i><i></i><i></i><b></b><span>LOCKED</span></div>
+          <div class="hero-readout"><span>TRAINING<br>PROTOCOL</span><strong>06</strong><small>READY TO DEPLOY</small></div>
+        </div>
+      </div>
+
+      <section class="settings-bar" aria-label="训练设置">
+        <div class="settings-heading"><span>训练配置</span><small>SETUP</small></div>
+        <div class="setting-group">
+          <span class="setting-label">维度</span>
+          <div class="segmented" id="dimension-options" role="group" aria-label="训练维度">
+            <button type="button" data-dimension="3d" class="is-active" aria-pressed="true">3D</button>
+            <button type="button" data-dimension="2d">2D</button>
+          </div>
+        </div>
+        <div class="setting-group sensitivity-group">
+          <label class="setting-label" for="sensitivity-number">瞄准灵敏度</label>
+          <div class="sensitivity-control">
+            <input id="sensitivity-range" type="range" min="0.010" max="1.000" step="0.001" value="0.350" aria-label="瞄准灵敏度">
+            <input id="sensitivity-number" type="number" min="0.010" max="1.000" step="0.001" value="0.350" aria-label="灵敏度数值">
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">准星</span>
+          <div class="segmented" id="crosshair-options" role="group" aria-label="准星样式">
+            <button type="button" data-crosshair="dot">点准星</button>
+            <button type="button" data-crosshair="cross" class="is-active" aria-pressed="true">十字</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">难度</span>
+          <div class="segmented" id="difficulty-options" role="group" aria-label="训练难度">
+            <button type="button" data-difficulty="easy">轻松</button>
+            <button type="button" data-difficulty="normal" class="is-active" aria-pressed="true">标准</button>
+            <button type="button" data-difficulty="hard">困难</button>
+          </div>
+        </div>
+        <div class="setting-group">
+          <span class="setting-label">时长</span>
+          <div class="segmented" id="duration-options" role="group" aria-label="训练时长">
+            <button type="button" data-duration="30" class="is-active" aria-pressed="true">30 秒</button>
+            <button type="button" data-duration="60">60 秒</button>
+            <button type="button" data-duration="90">90 秒</button>
+          </div>
+        </div>
+        <p class="settings-note"><span></span> 选择项目，即刻开练</p>
+      </section>
+
+      <div class="section-heading">
+        <div><p class="eyebrow">SELECT YOUR DRILL</p><h2>选择训练项目</h2></div>
+        <div class="records-actions"><p>每个项目独立记录最佳成绩</p><button id="reset-best-button" type="button">清除记录</button></div>
+      </div>
+      <div class="mode-grid" id="mode-grid"></div>
+
+      <section class="training-notes" aria-label="训练建议">
+        <article><span>01</span><div><h3>稳定，比速度更重要</h3><p>先保证命中，再逐步加快。困难模式不应牺牲你的动作质量。</p></div></article>
+        <article><span>02</span><div><h3>短组训练，及时复盘</h3><p>以 30–60 秒为一组，关注命中率与偏差，而不是只看总分。</p></div></article>
+        <article><span>03</span><div><h3>保持一致的设置</h3><p>固定鼠标 DPI 与系统灵敏度，让每一次练习都能积累肌肉记忆。</p></div></article>
+      </section>
+    </section>
+
+    <section class="view game-view" id="game-view" aria-labelledby="game-mode-title" hidden>
+      <div class="game-topline">
+        <button class="back-button" id="back-button" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7M8 12h12"></path></svg>
+          返回大厅
+        </button>
+        <div class="game-title-block"><span id="game-mode-kicker">DRILL 01</span><h2 id="game-mode-title">精准定位</h2></div>
+        <span class="game-config" id="game-settings-label">标准 · 30 秒</span>
+      </div>
+
+      <div class="hud" aria-label="实时训练数据">
+        <div class="hud-item hud-time"><span>剩余时间</span><strong id="hud-time">30.0</strong><small>SEC</small></div>
+        <div class="hud-item"><span id="hud-primary-label">得分</span><strong id="hud-primary-value">0</strong></div>
+        <div class="hud-item"><span id="hud-secondary-label">命中率</span><strong id="hud-secondary-value">—</strong></div>
+        <div class="hud-item"><span id="hud-tertiary-label">连击</span><strong id="hud-tertiary-value">0</strong></div>
+        <div class="hud-item hud-ammo"><span id="hud-weapon">戍卫 // GUARDIAN</span><strong id="hud-ammo">∞<small></small></strong><small id="hud-reload">SENS 0.350</small></div>
+      </div>
+
+      <div class="arena-shell" id="arena-shell">
+        <canvas id="game-canvas" width="1280" height="720" tabindex="0" aria-label="2D 练枪区域。使用鼠标瞄准，左键射击。">你的浏览器需要支持 Canvas 才能进行训练。</canvas>
+        <canvas id="game-canvas-3d" width="1280" height="720" tabindex="0" aria-label="3D 练枪区域。移动鼠标控制视角，左键射击。" hidden>你的浏览器需要支持 WebGL 才能进行 3D 训练。</canvas>
+        <div class="crosshair-3d" id="crosshair-3d" hidden aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+        <div class="arena-corners" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+        <div class="arena-overlay" id="start-overlay">
+          <div class="overlay-panel start-panel">
+            <p class="panel-kicker" id="start-mode-number">DRILL 01 // FUNDAMENTALS</p>
+            <div class="start-icon" id="start-icon" aria-hidden="true"></div>
+            <h3 id="start-mode-title">精准定位</h3>
+            <p id="start-mode-description"></p>
+            <div class="control-chips" id="start-controls"></div>
+            <div class="weapon-specs" id="weapon-specs" aria-label="枪械参考参数"></div>
+            <p class="start-tip" id="start-tip"></p>
+            <button class="primary-button" id="start-button" type="button"><span>开始训练</span><kbd>CLICK</kbd></button>
+            <small class="start-countdown-note">点击后 3 秒倒计时</small>
+          </div>
+        </div>
+
+        <div class="countdown-overlay" id="countdown-overlay" hidden aria-live="assertive">
+          <span>准备</span><strong id="countdown-value">3</strong><small>稳住呼吸，保持专注</small>
+        </div>
+
+        <div class="arena-overlay" id="pause-overlay" hidden>
+          <div class="overlay-panel compact-panel">
+            <p class="panel-kicker">SESSION PAUSED</p><h3>训练已暂停</h3>
+            <p>计时与目标已冻结，准备好后继续。</p>
+            <button class="primary-button" id="resume-button" type="button">继续训练 <kbd>ESC</kbd></button>
+            <div class="secondary-actions"><button id="pause-restart-button" type="button">重新开始</button><button id="pause-lobby-button" type="button">返回大厅</button></div>
+          </div>
+        </div>
+
+        <div class="arena-overlay results-overlay" id="results-overlay" hidden>
+          <div class="overlay-panel results-panel">
+            <p class="panel-kicker">SESSION COMPLETE</p>
+            <div class="result-heading"><h3>训练完成</h3><span class="new-best" id="new-best-badge" hidden>NEW BEST</span></div>
+            <div class="result-score"><strong id="result-score">0</strong><span id="result-unit">得分</span></div>
+            <div class="result-stats" id="result-stats"></div>
+            <p class="result-summary" id="result-summary"></p>
+            <div class="result-actions"><button class="primary-button" id="replay-button" type="button">再次训练 <kbd>R</kbd></button><button class="secondary-button" id="results-lobby-button" type="button">更换项目</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-footer">
+        <p id="arena-status"><span></span> 等待训练开始</p>
+        <div class="game-footer-actions">
+          <span id="look-readout" hidden>YAW 0.00°</span>
+          <button id="motion-button" type="button" aria-pressed="false">动态效果：开</button>
+          <button type="button" data-action="toggle-sound" aria-pressed="false"><span class="sound-label">声音开启</span></button>
+          <span><kbd>ESC</kbd> 暂停</span><span id="reload-key-hint" hidden><kbd>R</kbd> 复练</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>LOCK/ON <i>©</i> 2026</span><span>NO ACCOUNT. NO DISTRACTIONS. JUST AIM.</span></footer>
+  <dialog class="records-dialog" id="records-dialog" aria-labelledby="records-title">
+    <div class="records-modal-header">
+      <div><p class="panel-kicker">TRAINING ARCHIVE</p><h2 id="records-title">训练成绩</h2><p id="records-summary">本机训练档案</p></div>
+      <button class="records-close" id="records-close" type="button" aria-label="关闭成绩面板">×</button>
+    </div>
+    <div class="records-toolbar">
+      <div class="records-tabs" role="tablist" aria-label="成绩类型">
+        <button type="button" data-records-tab="recent" class="is-active" role="tab" aria-selected="true">最近成绩</button>
+        <button type="button" data-records-tab="best" role="tab" aria-selected="false">最佳纪录</button>
+      </div>
+      <div class="records-filters">
+        <label>维度<select id="records-dimension"><option value="all">全部</option><option value="3d">3D</option><option value="2d">2D</option></select></label>
+        <label>时长<select id="records-duration"><option value="all">全部</option><option value="30">30 秒</option><option value="60">60 秒</option><option value="90">90 秒</option></select></label>
+      </div>
+    </div>
+    <div class="records-content" id="records-content"></div>
+    <div class="records-modal-footer"><span>最近 20 局 · 仅保存于当前浏览器</span><button id="records-clear-button" type="button">清空全部成绩</button></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript>请启用 JavaScript 以使用练枪训练。</noscript>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
